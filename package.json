@@ -1,0 +1,45 @@
+{
+  "name": "Mood_Components_Monorepo",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "dev": "pnpm --filter @xuqizhang/playground dev",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "npx cz",
+    "lint:style": "stylelint packages/**/*.vue",
+    "lint:es": "eslint packages/**/*.{ts,vue}",
+    "spellcheck": "cspell lint --dot --gitignore --color --cache --show-suggestions \"packages/**/*.@(js|jsx|ts|tsx|vue|json|css|scss|html|md)\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-git"
+    }
+  },
+  "packageManager": "pnpm@10.5.2",
+  "dependencies": {
+    "typescript": "~5.9.3"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^20.3.1",
+    "@eslint/js": "9.7.0",
+    "commitizen": "^4.3.1",
+    "commitlint": "^20.3.1",
+    "cspell": "^9.6.0",
+    "cz-git": "^1.12.0",
+    "eslint": "9.7.0",
+    "eslint-plugin-simple-import-sort": "12.1.1",
+    "eslint-plugin-vue": "9.27.0",
+    "husky": "^9.1.7",
+    "stylelint": "16.23.0",
+    "stylelint-config-html": "^1.1.0",
+    "stylelint-config-recommended": "17.0.0",
+    "stylelint-config-recommended-vue": "1.5.0",
+    "typescript-eslint": "7.16.0"
+  }
+}
