@@ -9,6 +9,7 @@
     "dev": "pnpm --filter @xuqizhang/playground dev",
     "test": "echo \"Error: no test specified\" && exit 1",
     "commit": "npx cz",
+    "format": "prettier --write \"packages/**/*.{vue,ts,js}\"",
     "lint:style": "stylelint packages/**/*.vue",
     "lint:es": "eslint packages/**/*.{ts,vue}",
     "spellcheck": "cspell lint --dot --gitignore --color --cache --show-suggestions \"packages/**/*.@(js|jsx|ts|tsx|vue|json|css|scss|html|md)\""
@@ -23,11 +24,14 @@
   },
   "packageManager": "pnpm@10.5.2",
   "dependencies": {
+    "lodash-es": "^4.17.21",
     "typescript": "~5.9.3"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.3.1",
     "@eslint/js": "9.7.0",
+    "@types/lodash-es": "^4.17.12",
+    "@vitejs/plugin-vue-jsx": "^5.1.3",
     "commitizen": "^4.3.1",
     "commitlint": "^20.3.1",
     "cspell": "^9.6.0",
@@ -36,10 +40,12 @@
     "eslint-plugin-simple-import-sort": "12.1.1",
     "eslint-plugin-vue": "9.27.0",
     "husky": "^9.1.7",
+    "prettier": "^3.8.1",
     "stylelint": "16.23.0",
     "stylelint-config-html": "^1.1.0",
     "stylelint-config-recommended": "17.0.0",
     "stylelint-config-recommended-vue": "1.5.0",
-    "typescript-eslint": "7.16.0"
+    "typescript-eslint": "7.16.0",
+    "vue": "^3.5.24"
   }
 }
