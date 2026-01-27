@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { computed, ref, useSlots, watch } from 'vue'
 import { provide } from 'vue'
 
-import MVirtualList from '../Virtual-List/virtual-list'
+import MVirtualList from '../Virtual-List'
 import MTreeNode from './TreeNode.vue'
 import type { TreeContext, TreeEmit, TreeNode, TreeOption, TreeProps } from './types'
 import { treeContextKey } from './types'
@@ -21,6 +21,9 @@ const props = withDefaults(defineProps<TreeProps>(), {
   defaultExpandedKeys: () => [],
   selectable: true,
   multiple: false,
+  showCheckbox: false,
+  defaultCheckedKeys: () => [],
+  checkedKeys: () => [],
 })
 const emit = defineEmits<TreeEmit>()
 
@@ -59,6 +62,7 @@ function transformToTreeNode(
       key: fieldAccessor.getKeyFromRawNode(rawNode),
       label: fieldAccessor.getLabelFromRawNode(rawNode),
       level: currentLevel,
+      parent: parentNode,
       rawNode,
       isLeaf: rawNode.isLeaf ?? !hasChildren,
       disabled: rawNode.disabled ?? false,
@@ -121,7 +125,7 @@ const flattenedTreeData = computed(() => {
 // 展开的节点键值数组
 const expandedKeysSet = ref(new Set(props.defaultExpandedKeys || []))
 
-// 处理节点展开折叠
+// 处理节点展开折叠 
 async function handleToggle(node: TreeNode) {
   const nodeKey = node.key
   const isExpanded = expandedKeysSet.value.has(nodeKey)
@@ -190,6 +194,136 @@ function handleSelect(node: TreeNode) {
   emit('update:selectedKeys', [...selectedKeysRef.value])
 }
 
+// 支持复选框选择节点
+const checkedKeysRef = ref(new Set(props.defaultCheckedKeys || []))
+function isChecked(node: TreeNode) {
+  return checkedKeysRef.value.has(node.key)
+}
+
+// 检查节点是否禁用
+function isDisabled(node: TreeNode) {
+  return node.disabled || false
+}
+
+// 计算节点是否半选
+function isIndeterminate(node: TreeNode) {
+  if (!node.children || node.children.length === 0) {
+    return false
+  }
+
+  let checkedCount = 0
+  let totalCount = 0
+
+  function checkChildren(children: TreeNode[]) {
+    for (const child of children) {
+      if (!child.disabled) {
+        totalCount++
+        if (isChecked(child)) {
+          checkedCount++
+        }
+        if (child.children && child.children.length > 0) {
+          checkChildren(child.children)
+        }
+      }
+    }
+  }
+
+  checkChildren(node.children)
+
+  return totalCount > 0 && checkedCount > 0 && checkedCount < totalCount
+}
+
+// 级联选择：选择/取消选择所有子节点
+function cascadeSelect(node: TreeNode, checked: boolean) {
+  if (!node.children || node.children.length === 0) {
+    return
+  }
+
+  function cascade(node: TreeNode, checked: boolean) {
+    if (!node.disabled) {
+      if (checked) {
+        checkedKeysRef.value.add(node.key)
+      } else {
+        checkedKeysRef.value.delete(node.key)
+      }
+    }
+
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        cascade(child, checked)
+      }
+    }
+  }
+
+  cascade(node, checked)
+}
+
+// 反向级联：更新父节点状态
+function updateParentStatus(node: TreeNode) {
+  let currentNode = node
+
+  // 向上遍历所有父节点
+  while (currentNode.parent) {
+    const parent = currentNode.parent
+    const allChecked = parent.children?.every((child) => !child.disabled && isChecked(child)) || false
+    const noneChecked = parent.children?.every((child) => child.disabled || !isChecked(child)) || true
+
+    if (allChecked) {
+      checkedKeysRef.value.add(parent.key)
+    } else if (noneChecked) {
+      checkedKeysRef.value.delete(parent.key)
+    }
+    // 半选状态由 isIndeterminate 计算
+    currentNode = parent
+  }
+}
+
+// 处理复选框点击事件
+function handleCheck(node: TreeNode, checked: boolean) {
+  if (node.disabled) {
+    return
+  }
+
+  // 更新当前节点状态
+  if (checked) {
+    checkedKeysRef.value.add(node.key)
+  } else {
+    checkedKeysRef.value.delete(node.key)
+  }
+
+  // 级联更新子节点
+  cascadeSelect(node, checked)
+
+  // 反向级联更新父节点
+  updateParentStatus(node)
+
+  // 触发选中键值数组更新事件
+  emit('update:checkedKeys', [...checkedKeysRef.value])
+}
+
+watch(
+  () => props.defaultCheckedKeys,
+  (newCheckedKeys) => {
+    checkedKeysRef.value = new Set(newCheckedKeys || [])
+  },
+  {
+    immediate: true,
+  },
+)
+
+// 监听 checkedKeys 变化（用于 v-model:checkedKeys）
+watch(
+  () => props.checkedKeys,
+  (newCheckedKeys) => {
+    if (newCheckedKeys) {
+      checkedKeysRef.value = new Set(newCheckedKeys)
+    }
+  },
+  {
+    immediate: true,
+  },
+)
+
 // 支持自定义节点, 使用插槽来实现
 const treeContext: TreeContext = {
   slots: useSlots(),
@@ -210,12 +344,16 @@ provide(treeContextKey, treeContext)
             :node="node"
             :loading-keys="loadingKeys"
             :selected-keys="selectedKeysRef"
+            :show-checkbox="props.showCheckbox"
+            :checked="isChecked(node)"
+            :indeterminate="isIndeterminate(node)"
+            :disabled="isDisabled(node)"
             @toggle="handleToggle"
             @select="handleSelect"
+            @check="handleCheck"
           />
         </div>
       </template>
     </MVirtualList>
   </div>
 </template>
-

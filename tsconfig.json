@@ -41,5 +41,6 @@
     "moduleDetection": "force",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": false
   }
 }

@@ -1,10 +1,13 @@
 import { withInstall } from '@xuqizhang/utils'
-import VirtualList from './virtual-list'
 
-export default withInstall(VirtualList, 'MVirtualList')
+import _VirtualList from './virtual-list'
+
+const MVirtualList = withInstall(_VirtualList, 'MVirtualList')
+export { MVirtualList }
+export default MVirtualList
 
 declare module 'vue' {
   export interface GlobalComponents {
-    MVirtualList: typeof VirtualList
+    MVirtualList: typeof _VirtualList
   }
 }
