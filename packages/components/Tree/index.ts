@@ -1,13 +1,14 @@
-import Tree from './Tree.vue'
-import MTreeNode from './TreeNode.vue'
 import { withInstall } from '@xuqizhang/utils'
 
-export default withInstall(Tree, 'MTree')
-export { MTreeNode }
+import _Tree from './Tree.vue'
+import MTreeNode from './TreeNode.vue'
+
+const MTree = withInstall(_Tree, 'MTree')
+export { MTree, MTreeNode }
 
 declare module 'vue' {
   export interface GlobalComponents {
-    MTree: typeof Tree
+    MTree: typeof _Tree
     MTreeNode: typeof MTreeNode
   }
 }

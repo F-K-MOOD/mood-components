@@ -18,6 +18,10 @@ export interface TreeProps {
   multiple?: boolean
   /** 选中的节点键值数组 */
   selectedKeys?: (string | number)[]
+  /** 是否显示复选框 */
+  showCheckbox?: boolean
+  defaultCheckedKeys?: (string | number)[]
+  checkedKeys?: (string | number)[]
 }
 
 export interface TreeOption {
@@ -36,6 +40,8 @@ export interface TreeNode {
   label: string | number
   /** 节点层级 */
   level: number
+  /** 父节点引用 */
+  parent: TreeNode | null
   /** 原始数据节点 */
   rawNode: TreeOption
   /** 是否为叶子节点 */
@@ -49,16 +55,22 @@ export interface TreeNode {
 export interface TreeNodeEmit {
   (e: 'toggle', node: TreeNode): void
   (e: 'select', node: TreeNode): void
+  (e: 'check', node: TreeNode, checked: boolean): void
 }
 
 export interface TreeEmit {
   (e: 'update:selectedKeys', selectedKeys: (string | number)[]): void
+  (e: 'update:checkedKeys', checkedKeys: (string | number)[]): void
 }
 
 export interface TreeNodeProps {
   node: TreeNode
   loadingKeys: Set<string | number>
   selectedKeys: Set<string | number>
+  showCheckbox: boolean
+  checked?: boolean
+  indeterminate?: boolean
+  disabled?: boolean
 }
 
 export interface TreeContext {

@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import Checkbox from '../Checkbox/Checkbox.vue'
 import TreeNodeContext from './tree-node-context'
 import type { TreeNode, TreeNodeEmit, TreeNodeProps } from './types'
 
-
-const props = defineProps<TreeNodeProps>()
+const props = withDefaults(defineProps<TreeNodeProps>(), {
+  showCheckbox: false,
+  checked: false,
+  indeterminate: false,
+})
 const emit = defineEmits<TreeNodeEmit>()
 
 function toggle(node: TreeNode) {
@@ -18,17 +22,23 @@ function handleNodeClick(node: TreeNode) {
   }
 }
 
+function handleCheck(checked: boolean) {
+  emit('check', props.node, checked)
+}
+
 const isLoading = computed(() => props.loadingKeys.has(props.node.key))
 const hasChildren = computed(() => !props.node.isLeaf)
 const isSelected = computed(() => props.selectedKeys.has(props.node.key))
 const isDisabled = computed(() => props.node.disabled)
-
 </script>
 
 <template>
   <div :class="{ 'node-selected': isSelected }">
     <div>
-      <span v-if="!isDisabled" @click="toggle(props.node)">
+      <span
+        v-if="!isDisabled"
+        @click="toggle(props.node)"
+      >
         <template v-if="isLoading">
           <!-- 加载图标 -->
           <span class="loading-icon" />
@@ -42,8 +52,15 @@ const isDisabled = computed(() => props.node.disabled)
           <span class="leaf-icon" />
         </template>
       </span>
+      <Checkbox
+        v-if="props.showCheckbox"
+        :model-value="props.checked"
+        :indeterminate="props.indeterminate"
+        :disabled="isDisabled"
+        @change="handleCheck"
+      />
       <span @click="handleNodeClick(props.node)">
-        <TreeNodeContext.Provider :value="props.node" />
+        <TreeNodeContext :node="props.node" />
       </span>
     </div>
   </div>

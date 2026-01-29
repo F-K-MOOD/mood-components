@@ -24,8 +24,11 @@
   },
   "packageManager": "pnpm@10.5.2",
   "dependencies": {
+    "@types/mockjs": "^1.0.10",
     "lodash-es": "^4.17.21",
-    "typescript": "~5.9.3"
+    "mockjs": "^1.1.0",
+    "typescript": "~5.9.3",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^20.3.1",
