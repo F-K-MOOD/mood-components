@@ -24,11 +24,12 @@ export default [
     rules: {
       'simple-import-sort/imports': 'warn',
       'simple-import-sort/exports': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
       'vue/html-indent': 'off',
     },
   },
   {
-    files: ['*.ts', '**/*.ts'],
+    files: ['*.ts', '**/*.ts', '*.tsx', '**/*.tsx'],
     plugins: {
       'simple-import-sort': pluginSimpleImportSort,
     },
